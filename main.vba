@@ -81,6 +81,7 @@ Sub ConvertTextBoxToRectangle()
                 .Font.Name = shp.TextFrame2.TextRange.Font.Name
                 .Font.Size = shp.TextFrame2.TextRange.Font.Size
                 
+                ' 文字色：黒固定
                 .Font.Fill.ForeColor.RGB = RGB(0, 0, 0)
                 
             End With
@@ -91,9 +92,9 @@ Sub ConvertTextBoxToRectangle()
             ' AutoSize
             newShp.TextFrame2.AutoSize = shp.TextFrame2.AutoSize
             
-            ' 塗りつぶし・線
-            newShp.Fill.ForeColor.RGB = shp.Fill.ForeColor.RGB
-            newShp.Line.ForeColor.RGB = shp.Line.ForeColor.RGB
+            newShp.Fill.Visible = msoFalse
+            
+            newShp.Line.Visible = msoFalse
             
             ' 元削除
             shp.Delete
