@@ -19,40 +19,32 @@ Sub UngroupAllShapesRecursive()
     Loop While hasGroup
 
 End Sub
-
 Sub ResizeTextBoxesToFitText()
 
     Dim shp As Shape
     
     For Each shp In ActiveSheet.Shapes
         
-        ' テキストを持つオブジェクトのみ対象
+        ' テキストあり
         If shp.HasTextFrame Then
             If shp.TextFrame.HasText Then
                 
-                ' ★ テキストボックスのみ対象
+                ' テキストボックスのみ
                 If shp.Type = msoTextBox Then
                     
-                    With shp.TextFrame
-                        
-                        ' 一旦オートサイズをOFF
-                        .AutoSize = False
-                        
-                        ' ★ 十分大きくする（上限は適宜調整）
-                        shp.Width = 1000
-                        shp.Height = 1000
-                        
-                        ' 折り返しON（重要）
-                        .WordWrap = True
-                        
-                        ' ★ 文字に合わせて自動調整
-                        .AutoSize = True
-                        
-                    End With
+                    ' 一旦大きくする
+                    shp.Width = 1000
+                    shp.Height = 1000
+                    
+                    ' 折り返しON
+                    shp.TextFrame2.WordWrap = msoTrue
+                    
+                    shp.TextFrame2.AutoSize = msoAutoSizeShapeToFitText
                     
                 End If
                 
             End If
+
         End If
         
     Next shp
