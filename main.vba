@@ -26,25 +26,16 @@ Sub ResizeTextBoxesToFitText()
     For Each shp In ActiveSheet.Shapes
         
         ' テキストあり
-        If shp.HasTextFrame Then
-            If shp.TextFrame.HasText Then
+        If shp.Type = msoTextBox Then
+            If shp.TextFrame2.HasText Then
                 
-                ' テキストボックスのみ
-                If shp.Type = msoTextBox Then
-                    
-                    ' 一旦大きくする
-                    shp.Width = 1000
-                    shp.Height = 1000
-                    
-                    ' 折り返しON
-                    shp.TextFrame2.WordWrap = msoTrue
-                    
-                    shp.TextFrame2.AutoSize = msoAutoSizeShapeToFitText
-                    
-                End If
+                shp.Width = 1000
+                shp.Height = 1000
+                
+                shp.TextFrame2.WordWrap = msoTrue
+                shp.TextFrame2.AutoSize = msoAutoSizeShapeToFitText
                 
             End If
-
         End If
         
     Next shp
