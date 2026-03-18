@@ -42,3 +42,47 @@ Sub ResizeTextBoxesToFitText()
     Next shp
 
 End Sub
+
+Sub ConvertShapesToImages_Stable()
+
+    Dim shp As Shape
+    Dim newShape As Shape
+    Dim i As Long
+    
+    Application.ScreenUpdating = False
+    
+    For i = ActiveSheet.Shapes.Count To 1 Step -1
+        
+        Set shp = ActiveSheet.Shapes(i)
+        
+        If shp.Type <> msoPicture Then
+            
+            Dim l As Double, t As Double, w As Double, h As Double
+            l = shp.Left
+            t = shp.Top
+            w = shp.Width
+            h = shp.Height
+            
+            shp.CopyPicture Appearance:=xlScreen, Format:=xlPicture
+            
+            DoEvents
+            
+            ActiveSheet.Paste
+            Set newShape = ActiveSheet.Shapes(ActiveSheet.Shapes.Count)
+            
+            With newShape
+                .Left = l
+                .Top = t
+                .Width = w
+                .Height = h
+            End With
+            
+            shp.Delete
+            
+        End If
+        
+    Next i
+    
+    Application.ScreenUpdating = True
+
+End Sub
