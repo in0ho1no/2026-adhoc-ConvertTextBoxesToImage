@@ -55,37 +55,51 @@ Sub FreezeConnectors()
         
         Set shp = ActiveSheet.Shapes(i)
         
+        ' ★ コネクタ以外はスキップ
         If shp.Connector Then
+            ' ★ カギ線（エルボー）のみ対象
             If shp.ConnectorFormat.Type <> msoConnectorElbow Then GoTo ContinueLoop
-        End If
-            
-            Dim x1 As Double, y1 As Double
-            Dim x2 As Double, y2 As Double
-            
-            x1 = shp.ConnectorFormat.BeginX
-            y1 = shp.ConnectorFormat.BeginY
-            x2 = shp.ConnectorFormat.EndX
-            y2 = shp.ConnectorFormat.EndY
-            
-            ' ★ 正しい配列定義
-            Dim pts(1 To 3, 1 To 2) As Single
-            
-            pts(1, 1) = x1: pts(1, 2) = y1
-            pts(2, 1) = x1: pts(2, 2) = y2
-            pts(3, 1) = x2: pts(3, 2) = y2
-            
-            Set newShp = ActiveSheet.Shapes.AddPolyline(pts)
-            
-            ' スタイルコピー
-            With newShp.Line
-                .ForeColor.RGB = shp.Line.ForeColor.RGB
-                .Weight = shp.Line.Weight
-            End With
-            
-            shp.Delete
-            
+        Else
+            GoTo ContinueLoop
         End If
         
+        ' === 座標取得 ===
+        Dim x1 As Double, y1 As Double
+        Dim x2 As Double, y2 As Double
+        
+        x1 = shp.ConnectorFormat.BeginX
+        y1 = shp.ConnectorFormat.BeginY
+        x2 = shp.ConnectorFormat.EndX
+        y2 = shp.ConnectorFormat.EndY
+        
+        ' === 折れ線ポイント作成（L字）===
+        Dim pts(1 To 3, 1 To 2) As Single
+        
+        pts(1, 1) = x1: pts(1, 2) = y1
+        pts(2, 1) = x1: pts(2, 2) = y2
+        pts(3, 1) = x2: pts(3, 2) = y2
+        
+        ' === 新規ポリライン作成 ===
+        Set newShp = ActiveSheet.Shapes.AddPolyline(pts)
+        
+        ' === 線スタイルコピー ===
+        With newShp.Line
+            .ForeColor.RGB = shp.Line.ForeColor.RGB
+            .Weight = shp.Line.Weight
+            .DashStyle = shp.Line.DashStyle
+            .Transparency = shp.Line.Transparency
+        End With
+        
+        ' === 前後関係（Zオーダー）維持 ===
+        newShp.ZOrder msoSendToBack
+        Do While newShp.ZOrderPosition < shp.ZOrderPosition
+            newShp.ZOrder msoBringForward
+        Loop
+        
+        ' === 元削除 ===
+        shp.Delete
+        
+ContinueLoop:
     Next i
     
     Application.ScreenUpdating = True
