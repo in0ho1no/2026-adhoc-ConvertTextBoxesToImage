@@ -43,26 +43,52 @@ Sub ResizeTextBoxesToFitText()
 
 End Sub
 
-Sub DisconnectAllConnectors()
+Sub FreezeConnectors()
 
     Dim shp As Shape
+    Dim newShp As Shape
+    Dim i As Long
     
-    For Each shp In ActiveSheet.Shapes
+    Application.ScreenUpdating = False
+    
+    For i = ActiveSheet.Shapes.Count To 1 Step -1
+        
+        Set shp = ActiveSheet.Shapes(i)
         
         If shp.Connector Then
             
-            On Error Resume Next
+            ' 元の座標取得
+            Dim x1 As Double, y1 As Double
+            Dim x2 As Double, y2 As Double
             
-            shp.ConnectorFormat.BeginDisconnect
-            shp.ConnectorFormat.EndDisconnect
+            x1 = shp.ConnectorFormat.BeginX
+            y1 = shp.ConnectorFormat.BeginY
+            x2 = shp.ConnectorFormat.EndX
+            y2 = shp.ConnectorFormat.EndY
             
-            On Error GoTo 0
+            ' ★ 折れ線として再現（L字）
+            Set newShp = ActiveSheet.Shapes.AddPolyline(Array( _
+                Array(x1, y1), _
+                Array(x1, y2), _
+                Array(x2, y2)))
+            
+            ' スタイルコピー
+            With newShp.Line
+                .ForeColor.RGB = shp.Line.ForeColor.RGB
+                .Weight = shp.Line.Weight
+            End With
+            
+            ' 元削除
+            shp.Delete
             
         End If
         
-    Next shp
+    Next i
+    
+    Application.ScreenUpdating = True
 
 End Sub
+
 
 Sub ConvertTextBoxToRectangle()
 
@@ -139,7 +165,7 @@ Sub OptimizeShapesInSheet()
     Call UngroupAllShapesRecursive
     
     ' ② コネクタ切断
-    Call DisconnectAllConnectors
+    Call FreezeConnectors
     
     ' ③ テキスト調整
     Call ResizeTextBoxesToFitText
