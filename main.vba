@@ -43,6 +43,27 @@ Sub ResizeTextBoxesToFitText()
 
 End Sub
 
+Sub DisconnectAllConnectors()
+
+    Dim shp As Shape
+    
+    For Each shp In ActiveSheet.Shapes
+        
+        If shp.Connector Then
+            
+            On Error Resume Next
+            
+            shp.ConnectorFormat.BeginDisconnect
+            shp.ConnectorFormat.EndDisconnect
+            
+            On Error GoTo 0
+            
+        End If
+        
+    Next shp
+
+End Sub
+
 Sub ConvertTextBoxToRectangle()
 
     Dim shp As Shape
@@ -107,55 +128,6 @@ Sub ConvertTextBoxToRectangle()
 
 End Sub
 
-Sub ConvertConnectorsToImages()
-
-    Dim shp As Shape
-    Dim newShape As Shape
-    Dim i As Long
-    
-    Application.ScreenUpdating = False
-    
-    For i = ActiveSheet.Shapes.Count To 1 Step -1
-        
-        Set shp = ActiveSheet.Shapes(i)
-        
-        ' コネクタのみ対象
-        If shp.Connector Then
-            
-            ' 位置・サイズ保持
-            Dim l As Double, t As Double, w As Double, h As Double
-            l = shp.Left
-            t = shp.Top
-            w = shp.Width
-            h = shp.Height
-            
-            ' 画像コピー
-            shp.CopyPicture Appearance:=xlScreen, Format:=xlPicture
-            
-            DoEvents
-            
-            ActiveSheet.Paste
-            Set newShape = ActiveSheet.Shapes(ActiveSheet.Shapes.Count)
-            
-            ' 位置・サイズ復元
-            With newShape
-                .Left = l
-                .Top = t
-                .Width = w
-                .Height = h
-            End With
-            
-            ' 元削除
-            shp.Delete
-            
-        End If
-        
-    Next i
-    
-    Application.ScreenUpdating = True
-
-End Sub
-
 Sub OptimizeShapesInSheet()
 
     Application.ScreenUpdating = False
@@ -163,16 +135,16 @@ Sub OptimizeShapesInSheet()
     
     On Error GoTo Cleanup
     
-    ' 0. コネクタを先に固定（超重要）
-    Call ConvertConnectorsToImages
-    
     ' ① グループ解除
     Call UngroupAllShapesRecursive
     
-    ' ② テキスト調整
+    ' ② コネクタ切断
+    Call DisconnectAllConnectors
+    
+    ' ③ テキスト調整
     Call ResizeTextBoxesToFitText
     
-    ' ③ テキストボックス置換
+    ' ④ テキストボックス置換
     Call ConvertTextBoxToRectangle
 
 Cleanup:
