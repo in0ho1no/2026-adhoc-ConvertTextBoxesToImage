@@ -19,6 +19,7 @@ Sub UngroupAllShapesRecursive()
     Loop While hasGroup
 
 End Sub
+
 Sub ResizeTextBoxesToFitText()
 
     Dim shp As Shape
@@ -29,7 +30,7 @@ Sub ResizeTextBoxesToFitText()
         If shp.Type = msoTextBox Then
             If shp.TextFrame2.HasText Then
                 
-                shp.Width = 1000
+                shp.Width = 500
                 shp.Height = 1000
                 
                 shp.TextFrame2.WordWrap = msoTrue
