@@ -106,3 +106,28 @@ Sub ConvertTextBoxToRectangle()
     Application.ScreenUpdating = True
 
 End Sub
+
+Sub OptimizeShapesInSheet()
+
+    ' 高速化＆ちらつき防止
+    Application.ScreenUpdating = False
+    Application.EnableEvents = False
+    
+    On Error GoTo Cleanup
+    
+    ' ① グループ解除
+    Call UngroupAllShapesRecursive
+    
+    ' ② テキストボックスサイズ調整
+    Call ResizeTextBoxesToFitText
+    
+    ' ③ テキストボックス → 長方形変換
+    Call ConvertTextBoxToRectangle
+
+Cleanup:
+    
+    ' 復帰（重要）
+    Application.ScreenUpdating = True
+    Application.EnableEvents = True
+
+End Sub
