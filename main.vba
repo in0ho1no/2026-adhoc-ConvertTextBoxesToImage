@@ -43,40 +43,54 @@ Sub ResizeTextBoxesToFitText()
 
 End Sub
 
-Sub ConvertShapesToImages_Stable()
+Sub ConvertTextBoxToRectangle()
 
     Dim shp As Shape
-    Dim newShape As Shape
+    Dim newShp As Shape
     Dim i As Long
     
     Application.ScreenUpdating = False
     
+    ' 後ろから回す（削除するため）
     For i = ActiveSheet.Shapes.Count To 1 Step -1
         
         Set shp = ActiveSheet.Shapes(i)
         
-        If shp.Type <> msoPicture Then
+        If shp.Type = msoTextBox Then
             
+            ' 位置・サイズ保持
             Dim l As Double, t As Double, w As Double, h As Double
             l = shp.Left
             t = shp.Top
             w = shp.Width
             h = shp.Height
             
-            shp.CopyPicture Appearance:=xlScreen, Format:=xlPicture
+            ' テキスト取得
+            Dim txt As String
+            txt = shp.TextFrame2.TextRange.Text
             
-            DoEvents
+            ' 長方形作成
+            Set newShp = ActiveSheet.Shapes.AddShape( _
+                msoShapeRectangle, l, t, w, h)
             
-            ActiveSheet.Paste
-            Set newShape = ActiveSheet.Shapes(ActiveSheet.Shapes.Count)
+            ' テキスト設定
+            newShp.TextFrame2.TextRange.Text = txt
             
-            With newShape
-                .Left = l
-                .Top = t
-                .Width = w
-                .Height = h
-            End With
+            ' 書式コピー（重要）
+            newShp.TextFrame2.TextRange.Font.Name = shp.TextFrame2.TextRange.Font.Name
+            newShp.TextFrame2.TextRange.Font.Size = shp.TextFrame2.TextRange.Font.Size
             
+            ' 折り返し
+            newShp.TextFrame2.WordWrap = shp.TextFrame2.WordWrap
+            
+            ' AutoSizeも引き継ぐ
+            newShp.TextFrame2.AutoSize = shp.TextFrame2.AutoSize
+            
+            ' 塗りつぶし・線をコピー
+            newShp.Fill.ForeColor.RGB = shp.Fill.ForeColor.RGB
+            newShp.Line.ForeColor.RGB = shp.Line.ForeColor.RGB
+            
+            ' 元削除
             shp.Delete
             
         End If
