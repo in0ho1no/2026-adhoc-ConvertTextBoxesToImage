@@ -51,7 +51,6 @@ Sub ConvertTextBoxToRectangle()
     
     Application.ScreenUpdating = False
     
-    ' 後ろから回す（削除するため）
     For i = ActiveSheet.Shapes.Count To 1 Step -1
         
         Set shp = ActiveSheet.Shapes(i)
@@ -73,20 +72,26 @@ Sub ConvertTextBoxToRectangle()
             Set newShp = ActiveSheet.Shapes.AddShape( _
                 msoShapeRectangle, l, t, w, h)
             
-            ' テキスト設定
-            newShp.TextFrame2.TextRange.Text = txt
-            
-            ' 書式コピー（重要）
-            newShp.TextFrame2.TextRange.Font.Name = shp.TextFrame2.TextRange.Font.Name
-            newShp.TextFrame2.TextRange.Font.Size = shp.TextFrame2.TextRange.Font.Size
+            With newShp.TextFrame2.TextRange
+                
+                ' テキスト設定
+                .Text = txt
+                
+                ' フォント設定
+                .Font.Name = shp.TextFrame2.TextRange.Font.Name
+                .Font.Size = shp.TextFrame2.TextRange.Font.Size
+                
+                .Font.Fill.ForeColor.RGB = RGB(0, 0, 0)
+                
+            End With
             
             ' 折り返し
             newShp.TextFrame2.WordWrap = shp.TextFrame2.WordWrap
             
-            ' AutoSizeも引き継ぐ
+            ' AutoSize
             newShp.TextFrame2.AutoSize = shp.TextFrame2.AutoSize
             
-            ' 塗りつぶし・線をコピー
+            ' 塗りつぶし・線
             newShp.Fill.ForeColor.RGB = shp.Fill.ForeColor.RGB
             newShp.Line.ForeColor.RGB = shp.Line.ForeColor.RGB
             
