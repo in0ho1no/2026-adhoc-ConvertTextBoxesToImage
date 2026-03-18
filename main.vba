@@ -56,8 +56,9 @@ Sub FreezeConnectors()
         Set shp = ActiveSheet.Shapes(i)
         
         If shp.Connector Then
+            If shp.ConnectorFormat.Type <> msoConnectorElbow Then GoTo ContinueLoop
+        End If
             
-            ' 元の座標取得
             Dim x1 As Double, y1 As Double
             Dim x2 As Double, y2 As Double
             
@@ -66,11 +67,14 @@ Sub FreezeConnectors()
             x2 = shp.ConnectorFormat.EndX
             y2 = shp.ConnectorFormat.EndY
             
-            ' ★ 折れ線として再現（L字）
-            Set newShp = ActiveSheet.Shapes.AddPolyline(Array( _
-                Array(x1, y1), _
-                Array(x1, y2), _
-                Array(x2, y2)))
+            ' ★ 正しい配列定義
+            Dim pts(1 To 3, 1 To 2) As Single
+            
+            pts(1, 1) = x1: pts(1, 2) = y1
+            pts(2, 1) = x1: pts(2, 2) = y2
+            pts(3, 1) = x2: pts(3, 2) = y2
+            
+            Set newShp = ActiveSheet.Shapes.AddPolyline(pts)
             
             ' スタイルコピー
             With newShp.Line
@@ -78,7 +82,6 @@ Sub FreezeConnectors()
                 .Weight = shp.Line.Weight
             End With
             
-            ' 元削除
             shp.Delete
             
         End If
@@ -88,7 +91,6 @@ Sub FreezeConnectors()
     Application.ScreenUpdating = True
 
 End Sub
-
 
 Sub ConvertTextBoxToRectangle()
 
